@@ -27,7 +27,7 @@ then
     if [ $? -eq 0 ]
     then
       echo "- created $1.aes in $(pwd)"
-      echo "- securely deleting using $SRM"
+      echo "- securely deleting using $SRM_CMD"
       $SRM_CMD $1
       echo "- original file $1 deleted"
     else
