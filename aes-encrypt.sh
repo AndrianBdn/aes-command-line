@@ -3,6 +3,12 @@
 CIPHER="aes-256-cbc"
 SCRIPT=`basename $0`
 SCRIPT=${SCRIPT%.sh}
+SRM_CMD=srm
+
+command -v openssl >/dev/null 2>&1 || { echo "Could not find openssl in path"; exit 1; }
+command -v $SRM_CMD >/dev/null 2>&1 || SRM=shred;
+command -v $SRM_CMD >/dev/null 2>&1 || { echo "Could not find 'srm' or 'shred' for secure deletion"; exit 1; }
+
 
 if [ $# -ne 1 ]
 then
@@ -21,7 +27,8 @@ then
     if [ $? -eq 0 ]
     then
       echo "- created $1.aes in $(pwd)"
-      rm $1
+      echo "- securely deleting using $SRM"
+      $SRM_CMD $1
       echo "- original file $1 deleted"
     else
       echo "- encryption failed, file is still there"

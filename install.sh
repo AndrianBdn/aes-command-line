@@ -7,5 +7,5 @@ cd "$( dirname "$0" )"
 echo "Installing to $DESTDIR..."
 
 chmod 755 aes-encrypt.sh
-cp aes-encrypt.sh $DESTDIR/bin/aes-encrypt
+cp -f aes-encrypt.sh $DESTDIR/bin/aes-encrypt
 ln -sf $DESTDIR/bin/aes-encrypt $DESTDIR/bin/aes-decrypt
