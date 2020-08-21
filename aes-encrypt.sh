@@ -1,6 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
 CIPHER="aes-256-cbc"
+CRYPTO_ARGS="-md md5"
+# "-md md5" is compatibility option to decrypt old files  
+#
+# on a newer version of OpenSSL change this to "-md sha512 -pbkdf2 -iter 200000" to encrypt new files 
+# or better - read a deprecation notice in README.md and stop using this. 
+
 SCRIPT=`basename $0`
 SCRIPT=${SCRIPT%.sh}
 SRM_CMD=rm
@@ -9,7 +15,6 @@ command -v openssl >/dev/null 2>&1 || { echo "Could not find openssl in path"; e
 command -v $SRM_CMD >/dev/null 2>&1 || SRM=shred;
 command -v $SRM_CMD >/dev/null 2>&1 || { echo "Could not find 'srm' or 'shred' for secure deletion"; exit 1; }
 
-trap ctrl_c INT
 
 function ctrl_c() {
         echo "** Trapped CTRL-C"
@@ -32,7 +37,7 @@ then
   case "$SCRIPT" in 
 
     "aes-encrypt")
-      openssl $CIPHER -salt -in $1 -out $1.aes
+      openssl $CIPHER $CRYPTO_ARGS -salt -in $1 -out $1.aes
       if [ $? -eq 0 ]
       then
         echo "- created $1.aes in $(pwd)"
@@ -53,7 +58,7 @@ then
           exit 1
       fi
         
-      openssl $CIPHER -salt -d -in $1 -out $out
+      openssl $CIPHER $CRYPTO_ARGS -salt -d -in $1 -out $out
       if [ $? -eq 0 ]
       then
         echo "- decrypted $out in $(pwd)"
@@ -63,6 +68,7 @@ then
     ;;
 
     "aes-view")
+      trap ctrl_c INT
 
       out=${1%.aes}
       if [ "$1" != "$out.aes" ]
@@ -71,7 +77,7 @@ then
           exit 1
       fi
 
-      openssl $CIPHER -salt -d -in $1 
+      openssl $CIPHER $CRYPTO_ARGS -salt -d -in $1 
       sleep 7200
 
     ;;
